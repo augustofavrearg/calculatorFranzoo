@@ -1,0 +1,43 @@
+const express = require('express');
+const puppeteer = require('puppeteer');
+
+const app = express();
+const port = 3000;
+
+// Ruta para obtener los datos con Puppeteer
+app.get('/scrape', async (req, res) => {
+    try {
+        const data = await scrapeData();
+        res.json(data);
+    } catch (error) {
+        console.error('Error al scrapear los datos:', error);
+        res.status(500).json({ error: 'Ocurrió un error al obtener los datos.' });
+    }
+});
+
+async function scrapeData() {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    try {
+        // Navegar a la página y esperar a que cargue
+        await page.goto('https://eth-metapool.narwallets.com/votes/table/user?id=brianmai.near&dateIso=2024-07-01');
+        await page.waitForSelector('SELECTOR_DE_LOS_ELEMENTOS_A_EXTRAER');  // Reemplaza por el selector adecuado
+
+        // Ejemplo: Extraer texto de un elemento específico
+        const votesElement = await page.$('SELECTOR_DE_LOS_ELEMENTOS_A_EXTRAER');
+        const votes = await page.evaluate(element => element.textContent, votesElement);
+
+        return { votes };
+    } catch (error) {
+        console.error('Error en el scraping:', error);
+        return { error: 'Error al obtener los datos.' };
+    } finally {
+        await browser.close();
+    }
+}
+
+// Iniciar el servidor
+app.listen(port, () => {
+    console.log(`Servidor corriendo en http://localhost:${port}`);
+});
