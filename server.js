@@ -5,14 +5,12 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-// Servir archivos estáticos desde el directorio raíz
 app.use(express.static(path.join(__dirname, '/')));
 
-// Ruta para obtener los datos con Puppeteer
 app.get('/scrape', async (req, res) => {
     try {
         const data = await scrapeData();
-        console.log('Datos obtenidos:', data); // Verifica en la consola que obtienes los datos correctamente
+        console.log('Datos obtenidos:', data);
         res.json(data);
     } catch (error) {
         console.error('Error al scrapear los datos:', error);
@@ -21,26 +19,29 @@ app.get('/scrape', async (req, res) => {
 });
 
 async function scrapeData() {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
 
     try {
-        // Navegar a la página y esperar a que cargue
         await page.goto('https://eth-metapool.narwallets.com/votes/table/user?id=brianmai.near&dateIso=2024-07-01');
-        await page.waitForSelector('body');  // Espera al cuerpo de la página
+        await page.waitForSelector('body', { timeout: 30000 });
 
-        // Extraer el texto completo del cuerpo de la página
-        const pageContent = await page.evaluate(() => document.querySelector('body').textContent);
+        const totalVP = await page.evaluate(() => {
+            const pageContent = document.body.innerText;
+            const regex = /total VP:\s*([\d,]+)/i;
+            const match = pageContent.match(regex);
+            return match ? parseInt(match[1].replace(/,/g, ''), 10) : 0;
+        });
 
-        // Extraer el número específico utilizando expresiones regulares
-        const regex = /total VP:\s*([\d,]+)/;
-        const match = pageContent.match(regex);
-        const totalVPText = match ? match[1] : '0'; // Si no se encuentra, devuelve '0'
-        
-        // Convertir el texto del número a un número entero sin comas
-        const totalVP = parseInt(totalVPText.replace(/,/g, ''), 10);
+        await page.goto('https://stats.metapool.app/d/o6-y_wQ7k/meta-pool-public-dashboard?orgId=2');
+        await page.waitForSelector('#reactRoot > div > main > div.css-1mwktlb > div > div > div.scrollbar-view > div > div:nth-child(2) > div > div:nth-child(15) > section > div.panel-content.panel-content--no-padding > div > div > div > div:nth-child(1) > div > div > span:nth-child(2)', { timeout: 60000 });
 
-        return { totalVP };
+        const grafanaValue = await page.evaluate(() => {
+            const element = document.querySelector('#reactRoot > div > main > div.css-1mwktlb > div > div > div.scrollbar-view > div > div:nth-child(2) > div > div:nth-child(15) > section > div.panel-content.panel-content--no-padding > div > div > div > div:nth-child(1) > div > div > span:nth-child(2)');
+            return element ? parseFloat(element.textContent.replace(/[^0-9.]/g, '')) : null;
+        });
+
+        return { totalVP, grafanaValue };
     } catch (error) {
         console.error('Error en el scraping:', error);
         return { error: 'Error al obtener los datos.' };
@@ -49,7 +50,6 @@ async function scrapeData() {
     }
 }
 
-// Iniciar el servidor
 app.listen(port, () => {
     console.log(`Servidor corriendo en http://localhost:${port}`);
 });

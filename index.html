@@ -13,7 +13,7 @@
         <input type="number" id="treasuryBalance">
         
         <label for="stnearValue">Value of stNEAR (USD):</label>
-        <input type="number" id="stnearValue">
+        <input type="number" id="stnearValue" readonly>
         
         <label for="totalVotes">Total Votes:</label>
         <input type="number" id="totalVotes" readonly>
@@ -21,7 +21,7 @@
         <label for="requestedGrant">Requested Grant (USD):</label>
         <input type="number" id="requestedGrant">
         
-        <button onclick="calculateVotes()">Calculate</button>
+        <button id="calculateButton">Calculate</button>
         
         <h2>Results:</h2>
         <p id="requiredVotes">Required Votes: </p>
@@ -30,6 +30,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
