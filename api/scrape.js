@@ -1,10 +1,12 @@
-const puppeteer = require('puppeteer');
+const chrome = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer-core');
 
 module.exports = async (req, res) => {
     const browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
+        args: [...chrome.args, '--no-sandbox', '--disable-setuid-sandbox'],
+        defaultViewport: chrome.defaultViewport,
+        executablePath: await chrome.executablePath,
+        headless: chrome.headless,
     });
 
     const page = await browser.newPage();
@@ -54,5 +56,3 @@ module.exports = async (req, res) => {
         await browser.close();
     }
 };
-
-
