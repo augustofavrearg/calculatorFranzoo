@@ -4,8 +4,10 @@
   "description": "A voting calculator application using Node.js, Puppeteer, and Express",
   "main": "server.js",
   "dependencies": {
+    "chrome-aws-lambda": "^9.1.0",
     "express": "^4.17.2",
-    "puppeteer": "^22.13.0"
+    "puppeteer": "^22.13.0",
+    "puppeteer-core": "^22.13.0"
   },
   "scripts": {
     "start": "node server.js"
