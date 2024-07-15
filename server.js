@@ -1,5 +1,5 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 const path = require('path');
 
 const app = express();
@@ -13,13 +13,13 @@ app.get('/scrape', async (req, res) => {
         console.log('Datos obtenidos:', data);
         res.json(data);
     } catch (error) {
-        console.error('Error al scrapear los datos:', error);
+        console.error('Error al scrapear los dastos:', error);
         res.status(500).json({ error: 'Ocurrió un error al obtener los datos.' });
     }
 });
 
 async function scrapeData() {
-    const browser = await puppeteer.launch({ headless: "new" });
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
 
     try {
