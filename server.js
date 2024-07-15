@@ -13,7 +13,7 @@ app.get('/scrape', async (req, res) => {
         console.log('Datos obtenidos:', data);
         res.json(data);
     } catch (error) {
-        console.error('Error al scrapear los dastos:', error);
+        console.error('Error al scasdasrapear los dastos:', error);
         res.status(500).json({ error: 'Ocurrió un error al obtener los datos.' });
     }
 });
