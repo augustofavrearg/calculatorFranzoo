@@ -3,17 +3,24 @@ const { chromium } = require('playwright');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname, '/')));
+// Servir archivos estáticos desde el directorio 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
+// Ruta raíz para servir el archivo HTML
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Ruta para scraping
 app.get('/scrape', async (req, res) => {
     try {
         const data = await scrapeData();
         console.log('Datos obtenidos:', data);
         res.json(data);
     } catch (error) {
-        console.error('Error al scrapear los dastos:', error);
+        console.error('Error al scrapear los datos:', error);
         res.status(500).json({ error: 'Ocurrió un error al obtener los datos.' });
     }
 });
